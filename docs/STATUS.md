@@ -77,12 +77,16 @@ stores from independent local/Actions builds normalize to identical bytes across
 both ABIs. Java-only rebuilds and strict catalog validation pass; the six other ZIPs
 remain unchanged. Fresh-root Java17 keytool inspection and full online/offline
 Maven/Gradle toolchain smoke pass with the normalized truststore.
-No release or tag has been created. A new Actions comparison and exact-hash Android
-acceptance remain required before
-runtime publication.
 The normalized builder is source commit `5ac272a3066cef0e9cf480d08630305bb0c1467f`;
 its [Actions run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40694786441)
-has been dispatched for the same unpublished version.
+passed both ABI builds and full hosted toolchain smoke. All eight actual downloaded
+runtime ZIPs match the normalized local catalog byte sizes and SHA-256 hashes
+exactly. Comparison evidence is recorded locally in
+`.artifacts/actions-verification/normalized-comparison.json`; the actual downloads
+are retained under `normalized-actions/<ABI>/` in that verification folder.
+Corresponding source collection is still running. Workflow completion and exact-hash
+Android acceptance remain required before runtime publication. No release or tag
+has been created.
 No Maestro/UI screenshot applies to this standalone asset build repository.
 
 Review source completeness and notices before public release. The Java bundle
