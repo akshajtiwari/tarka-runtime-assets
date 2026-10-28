@@ -62,6 +62,10 @@ talloc archive matches the existing SHA-256 exactly. Downloads are verified befo
 atomic cache installation; failed or mismatched downloads leave no partial cache.
 A fresh download of both native sources passed, including the mirror fallback.
 The native source bundle/catalog change to record that mirror; runtime ZIPs do not.
+The reviewed fix is source commit `08291e4fae8fadb2fc84d80563f37866037851e2`.
+Its [Actions run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40692292015)
+has passed checkout, the public-repository/version guard and all tests for both
+ABIs; both pack build jobs are running. No release or tag has been created.
 Complete Actions results and exact-hash Android acceptance remain required before
 runtime publication.
 No Maestro/UI screenshot applies to this standalone asset build repository.
