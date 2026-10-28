@@ -1,0 +1,7 @@
+[
+  {"project": "junit4", "repository": "junit-team/junit4", "tag": "r4.13.2", "commit": "05fe2a64f59127c02135be22f416e91260d6ede6"},
+  {"project": "junit5", "repository": "junit-team/junit5", "tag": "r5.8.2", "commit": "f58cd419755846f1476e8d15783438de8d7aede4"},
+  {"project": "trove4j", "repository": "JetBrains/intellij-deps-trove4j", "version": "1.0.20200330", "commit": "c08db9d834c03142d11435369446a978056c0da3"},
+  {"project": "sisu", "repository": "eclipse-sisu/sisu-project", "tag": "milestones/0.9.0.M3", "commit": "cd41943d6e0d0953144f1d1121d0c18e58c3eb95"},
+  {"project": "javax.annotation", "repository": "javaee/javax.annotation", "tag": "1.3.2", "commit": "5000694c178b93a952510dff6afcc2101e6e0490"}
+]
