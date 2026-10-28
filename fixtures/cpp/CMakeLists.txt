@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+project(tarka_smoke C CXX)
+find_package(ZLIB REQUIRED)
+add_executable(smoke main.cpp helper.cpp)
+target_link_libraries(smoke ZLIB::ZLIB)
