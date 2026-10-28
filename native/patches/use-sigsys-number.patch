@@ -1,0 +1,49 @@
+--- a/src/tracee/event.c
++++ b/src/tracee/event.c
+@@ -887,7 +887,7 @@
+ 					tracee->restore_sysarg1_after_sigsys = false;
+ 					signal = 0;
+ 				} else {
+-					signal = handle_seccomp_event(tracee);
++					signal = handle_seccomp_event(tracee, siginfo.si_syscall);
+ 				}
+ 			} else {
+ 				VERBOSE(tracee, 1, "non-seccomp SIGSYS");
+--- a/src/tracee/seccomp.c
++++ b/src/tracee/seccomp.c
+@@ -82,7 +82,7 @@
+  *
+  * Return 0 to swallow signal or SIGSYS to deliver it to process.
+  */
+-int handle_seccomp_event(Tracee* tracee)
++int handle_seccomp_event(Tracee* tracee, int syscall_number)
+ {
+ 	int ret;
+ 
+@@ -118,14 +118,9 @@
+ 	/* Save regs so they can be restored at end of replaced call.  */
+ 	save_current_regs(tracee, ORIGINAL_SECCOMP_REWRITE);
+ 
+-	/* X86 uses orig_rax when selecting syscall,
+-	 * however at this point we are after syscall has been rejected
+-	 * and orig_rax was reset to -1.  */
+-#if defined(ARCH_X86_64)
+-	tracee->_regs[CURRENT].orig_rax = tracee->_regs[CURRENT].rax;
+-#elif defined(ARCH_X86)
+-	tracee->_regs[CURRENT].orig_eax = tracee->_regs[CURRENT].eax;
+-#endif
++	/* A synthesized exit may already have replaced the result register.
++	 * The kernel's SIGSYS payload still names the blocked syscall. */
++	poke_reg(tracee, SYSARG_NUM, syscall_number);
+ 
+ 	print_current_regs(tracee, 3, "seccomp SIGSYS");
+ 
+--- a/src/tracee/seccomp.h
++++ b/src/tracee/seccomp.h
+@@ -18,5 +18,5 @@
+ 
+ void restart_syscall_after_seccomp(Tracee* tracee);
+ void set_result_after_seccomp(Tracee *tracee, word_t result);
+-int handle_seccomp_event(Tracee* tracee);
++int handle_seccomp_event(Tracee* tracee, int syscall_number);
+ void fix_and_restart_enosys_syscall(Tracee* tracee);

@@ -1,0 +1,3 @@
+# Preserve original notices and the required whitespace in unified diffs.
+native/patches/*.patch -whitespace
+native/licenses/*.txt -whitespace
