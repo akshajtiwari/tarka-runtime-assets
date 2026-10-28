@@ -11,7 +11,10 @@ All action references are pinned to complete commit hashes. Checkout explicitly
 uses `persist-credentials: false`; source-fetch containers receive only the public
 assets checkout and explicit build variables. No GitHub token, runner home, SDK,
 Docker socket, private application checkout or signing material is mounted into
-APKBUILD containers. The workflow requires the repository to be public and grants
+APKBUILD containers. The Linux smoke mounts fresh container procfs with
+`SYS_ADMIN` and container-scoped `apparmor=unconfined`; Ubuntu runner AppArmor
+otherwise rejects this mount. Host procfs and host PID namespaces are not shared.
+The inner shell exits immediately on a failed mount. The workflow requires the repository to be public and grants
 only `contents: read`.
 
 Action versions were checked against the upstream action repositories:

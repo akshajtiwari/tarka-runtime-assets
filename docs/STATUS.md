@@ -22,7 +22,7 @@ included in this repository.
   source artifacts/POMs, full original source trees/build scripts, and notices.
 - Separate PRoot/talloc original sources, patches, standalone build recipe,
   cross-compilation answers, GPLv3/LGPLv3 and original/NDK notices.
-- 32 focused unit tests, Python compilation and shell syntax checks pass.
+- 33 focused unit tests, Python compilation and shell syntax checks pass.
 - Catalog, native/Java source metadata, SHA256SUMS and explicit UPLOADS.txt generated.
 - Native installer JVM tests independently parsed/verified all eight real ZIPs and
   extracted/hashed both selected ABI generations; its log is with the application
@@ -46,11 +46,12 @@ application; these assets only copied its component recipes/patches and verified
 Reviewer findings are fixed: clean bootstrap creates its downloads directory;
 catalog generation validates pack identity/base dependency and every actual payload;
 header, mode/type, per-file and aggregate limits apply before and during extraction.
-Simplification and security re-review approved these fixes. The initial Actions
-[build run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40681929693)
-is in progress for version `2026.10.28.1`, from source commit
-`d143e09572d2955953e794320752ae1958b3f157`. Both ABI jobs passed checkout, the
-public-repository/version checks and unit tests, then started pack builds.
+Simplification and security re-review approved the pack validation fixes. The initial
+[Actions run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40681929693)
+built both ABI packs successfully, then failed because Docker AppArmor denied the
+smoke container's procfs mount. The smoke now scopes AppArmor relaxation to that
+isolated container and exits immediately if mounting fails. Its full local runtime
+smoke and mount-failure regression test pass; the corrected Actions run is next.
 Complete Actions results and exact-hash Android acceptance remain required before
 runtime publication.
 No Maestro/UI screenshot applies to this standalone asset build repository.
