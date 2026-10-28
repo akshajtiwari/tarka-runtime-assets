@@ -80,6 +80,9 @@ Maven/Gradle toolchain smoke pass with the normalized truststore.
 No release or tag has been created. A new Actions comparison and exact-hash Android
 acceptance remain required before
 runtime publication.
+The normalized builder is source commit `5ac272a3066cef0e9cf480d08630305bb0c1467f`;
+its [Actions run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40694786441)
+has been dispatched for the same unpublished version.
 No Maestro/UI screenshot applies to this standalone asset build repository.
 
 Review source completeness and notices before public release. The Java bundle
