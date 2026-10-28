@@ -25,7 +25,7 @@ included in this repository.
 - 32 focused unit tests, Python compilation and shell syntax checks pass.
 - Catalog, native/Java source metadata, SHA256SUMS and explicit UPLOADS.txt generated.
 - Native installer JVM tests independently parsed/verified all eight real ZIPs and
-  extracted/hashed both selected ABI generations; its log is in the parent app
+  extracted/hashed both selected ABI generations; its log is with the application
   `.artifacts/runtime-installer-work/tests.log`.
 - Fresh Docker bootstrap with an empty downloads directory passed; optional pack
   packaging was intentionally skipped in that targeted bootstrap regression run.
@@ -39,16 +39,20 @@ caches follow TARKA's writable home binding across generation changes.
 
 ## Release work still required
 
-The parent application work owns Android installation, interruption/recovery,
+Application release work owns Android installation, interruption/recovery,
 upgrade and process tests against these exact final hashes, plus actual ARM64
 device execution. Native loader compilation/execution evidence belongs to the
-parent; these assets only copied its component recipes/patches and verified sources.
+application; these assets only copied its component recipes/patches and verified sources.
 Reviewer findings are fixed: clean bootstrap creates its downloads directory;
 catalog generation validates pack identity/base dependency and every actual payload;
 header, mode/type, per-file and aggregate limits apply before and during extraction.
-Simplification and security re-review approved these fixes. The Actions workflow
-passes actionlint and is ready for the initial build dispatch. Actual Actions
-results and exact-hash Android acceptance must pass before runtime publication.
+Simplification and security re-review approved these fixes. The initial Actions
+[build run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40681929693)
+is in progress for version `2026.10.28.1`, from source commit
+`d143e09572d2955953e794320752ae1958b3f157`. Both ABI jobs passed checkout, the
+public-repository/version checks and unit tests, then started pack builds.
+Complete Actions results and exact-hash Android acceptance remain required before
+runtime publication.
 No Maestro/UI screenshot applies to this standalone asset build repository.
 
 Review source completeness and notices before public release. The Java bundle
@@ -60,5 +64,5 @@ nonstandard labels need display normalization.
 
 The initial source commits are authored by Akshaj Tiwari. Final publication
 workflow wiring, runtime publication and the matching private APK release remain
-with the parent release work. Keep
+with application release work. Keep
 `.artifacts/` ignored; upload only the explicit release list, never project caches.

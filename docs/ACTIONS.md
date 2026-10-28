@@ -21,7 +21,7 @@ Action versions were checked against the upstream action repositories:
 The credential setting follows the upstream [checkout instructions](https://github.com/actions/checkout#usage).
 
 This workflow has been validated locally with actionlint 1.7.12 and shell syntax
-checks. A real Actions run remains pending repository creation and reviewed commits.
+checks. The initial run is tracked in [STATUS.md](STATUS.md).
 Final publication uses the reviewed candidate hashes and matching Android acceptance
-evidence through the parent release work. A rerun against a changed Alpine package
+evidence through application release work. A rerun against a changed Alpine package
 index requires a new version; published artifacts must remain immutable.
