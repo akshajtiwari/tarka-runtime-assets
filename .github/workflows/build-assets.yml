@@ -1,0 +1,95 @@
+name: build runtime assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: New immutable runtime pack version
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runtime-assets-${{ inputs.version }}
+  cancel-in-progress: false
+
+env:
+  PACK_VERSION: ${{ inputs.version }}
+
+jobs:
+  packs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, x86_64]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check public assets checkout and version
+        env:
+          REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          test "$REPOSITORY_PRIVATE" = false
+          python3 -c 'import os,re; assert re.fullmatch("[A-Za-z0-9][A-Za-z0-9._-]{0,63}", os.environ["PACK_VERSION"])'
+          python3 -m unittest discover -s tests -v
+      - name: Build signed-input packs
+        env:
+          PACK_ABI: ${{ matrix.abi }}
+        run: scripts/build.sh "$PACK_ABI"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: packs-${{ matrix.abi }}
+          path: .artifacts/release/
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  prepare-release:
+    needs: packs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: packs-*
+          merge-multiple: true
+          path: .artifacts/release
+      - name: Verify both ABIs and exercise x86_64 packs
+        run: |
+          python3 scripts/verify_packs.py arm64-v8a
+          python3 scripts/check_elf.py arm64-v8a
+          python3 scripts/verify_packs.py x86_64
+          python3 scripts/check_elf.py x86_64
+          scripts/smoke-linux.sh
+      - name: Collect corresponding sources and notices
+        run: |
+          scripts/sources.sh .artifacts/release/manifests-*.json
+          python3 scripts/java_sources.py
+          python3 scripts/native_sources.py
+          python3 scripts/licenses.py .artifacts/release/manifests-*.json
+      - name: Validate complete release and record source revision
+        env:
+          ASSET_REPOSITORY: ${{ github.repository }}
+          ASSET_COMMIT: ${{ github.sha }}
+          ASSET_RUN_ID: ${{ github.run_id }}
+        run: |
+          python3 scripts/catalog.py "https://github.com/$ASSET_REPOSITORY/releases/download/$PACK_VERSION"
+          python3 scripts/build_metadata.py
+          python3 scripts/release_files.py --stage
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: runtime-release-${{ inputs.version }}
+          path: .artifacts/release-upload/
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
