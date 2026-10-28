@@ -51,7 +51,11 @@ Simplification and security re-review approved the pack validation fixes. The in
 built both ABI packs successfully, then failed because Docker AppArmor denied the
 smoke container's procfs mount. The smoke now scopes AppArmor relaxation to that
 isolated container and exits immediately if mounting fails. Its full local runtime
-smoke and mount-failure regression test pass; the corrected Actions run is next.
+smoke and mount-failure regression test pass. The corrected
+[Actions run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40685892432),
+from source commit `028f12c8f655c08589896ac965fd77b5b8092cae`, passed both ABI
+build jobs and the complete payload/ELF/toolchain smoke step on the hosted runner.
+Corresponding source and notice collection is in progress.
 Complete Actions results and exact-hash Android acceptance remain required before
 runtime publication.
 No Maestro/UI screenshot applies to this standalone asset build repository.
