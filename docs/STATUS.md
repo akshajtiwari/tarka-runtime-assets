@@ -22,7 +22,7 @@ included in this repository.
   source artifacts/POMs, full original source trees/build scripts, and notices.
 - Separate PRoot/talloc original sources, patches, standalone build recipe,
   cross-compilation answers, GPLv3/LGPLv3 and original/NDK notices.
-- 37 focused unit tests, Python compilation and shell syntax checks pass.
+- 42 focused unit tests, Python compilation and shell syntax checks pass.
 - Catalog, native/Java source metadata, SHA256SUMS and explicit UPLOADS.txt generated.
 - Native installer JVM tests independently parsed/verified all eight real ZIPs and
   extracted/hashed both selected ABI generations; its log is with the application
@@ -64,9 +64,21 @@ A fresh download of both native sources passed, including the mirror fallback.
 The native source bundle/catalog change to record that mirror; runtime ZIPs do not.
 The reviewed fix is source commit `08291e4fae8fadb2fc84d80563f37866037851e2`.
 Its [Actions run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40692292015)
-has passed checkout, the public-repository/version guard and all tests for both
-ABIs; both pack build jobs are running. No release or tag has been created.
-Complete Actions results and exact-hash Android acceptance remain required before
+passed every job, including source collection, complete catalog and review artifact
+upload. Downloading its actual runtime artifacts proved six ZIPs match the local
+catalog exactly. Both Java ZIPs differed only in generated JKS entry creation dates
+and the resulting integrity footer; all 118 aliases, certificate types and
+certificate bytes were identical.
+
+The builder now fixes only those creation dates and recomputes the standard JKS
+integrity footer. It verifies the original footer, rejects private-key entries and
+malformed/truncated stores, and preserves certificate bytes and ordering. Four real
+stores from independent local/Actions builds normalize to identical bytes across
+both ABIs. Java-only rebuilds and strict catalog validation pass; the six other ZIPs
+remain unchanged. Fresh-root Java17 keytool inspection and full online/offline
+Maven/Gradle toolchain smoke pass with the normalized truststore.
+No release or tag has been created. A new Actions comparison and exact-hash Android
+acceptance remain required before
 runtime publication.
 No Maestro/UI screenshot applies to this standalone asset build repository.
 

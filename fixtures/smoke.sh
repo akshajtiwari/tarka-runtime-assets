@@ -6,6 +6,7 @@ python3 -m venv /home/tarka/venv
 /home/tarka/venv/bin/python -m pip --version
 git --version
 gh --version
+keytool -list -keystore /etc/ssl/certs/java/cacerts -storepass changeit > /workspace/java-truststore-list.txt
 cd java
 mkdir -p library app
 javac -d library Library.java

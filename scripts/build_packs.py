@@ -7,6 +7,7 @@ import sys
 
 from components import installed, lock_components, locate_archive
 from pack_tree import write_pack, verify_overlap
+from java_truststore import normalize_jks
 
 VERSION = os.environ.get('PACK_VERSION', '2026.10.28.1')
 PACKAGES = {'python': ['python3', 'py3-pip'],
@@ -76,6 +77,7 @@ def prepare_java(root, arch):
         raise ValueError('Builder and target CA bundles differ; refusing a mismatched Java truststore.')
     subprocess.run(['trust', 'extract', '--overwrite', '--format=java-cacerts', '--filter=ca-anchors',
                     '--purpose', 'server-auth', str(destination)], check=True)
+    destination.write_bytes(normalize_jks(destination.read_bytes()))
     jvm = root / 'usr/lib/jvm/default-jvm'
     if jvm.is_symlink():
         jvm.unlink()
