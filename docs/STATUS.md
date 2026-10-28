@@ -22,7 +22,7 @@ included in this repository.
   source artifacts/POMs, full original source trees/build scripts, and notices.
 - Separate PRoot/talloc original sources, patches, standalone build recipe,
   cross-compilation answers, GPLv3/LGPLv3 and original/NDK notices.
-- 42 focused unit tests, Python compilation and shell syntax checks pass.
+- 56 focused unit tests, Python compilation and shell syntax checks pass.
 - Catalog, native/Java source metadata, SHA256SUMS and explicit UPLOADS.txt generated.
 - Native installer JVM tests independently parsed/verified all eight real ZIPs and
   extracted/hashed both selected ABI generations; its log is with the application
@@ -84,9 +84,12 @@ runtime ZIPs match the normalized local catalog byte sizes and SHA-256 hashes
 exactly. Comparison evidence is recorded locally in
 `.artifacts/actions-verification/normalized-comparison.json`; the actual downloads
 are retained under `normalized-actions/<ABI>/` in that verification folder.
-Corresponding source collection is still running. Workflow completion and exact-hash
-Android acceptance remain required before runtime publication. No release or tag
-has been created.
+That workflow completed successfully, including sources, complete catalog,
+provenance and review artifact upload. Exact-hash Android acceptance remains pending.
+The separate manual candidate-publication workflow is prepared with fail-closed
+build/artifact/provenance checks and exact-commit tagging. Its unit tests, real
+99-file payload validation and actionlint pass; it has not been dispatched.
+No release or tag has been created.
 No Maestro/UI screenshot applies to this standalone asset build repository.
 
 Review source completeness and notices before public release. The Java bundle

@@ -1,0 +1,96 @@
+name: publish tool-pack candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful build-runtime-assets run ID to publish
+        required: true
+        type: string
+      version:
+        description: Unpublished version from that build
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: publish-tool-pack-candidate-${{ inputs.version }}
+  cancel-in-progress: false
+
+env:
+  ASSET_REPOSITORY: ${{ github.repository }}
+  BUILD_RUN_ID: ${{ inputs.run_id }}
+  BUILD_VERSION: ${{ inputs.version }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      commit: ${{ steps.build.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Require the public main branch
+        env:
+          REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          test "$REPOSITORY_PRIVATE" = false
+          test "$GITHUB_REF" = refs/heads/main
+          python3 scripts/candidate_build.py
+      - name: Check selected build and release artifact
+        id: build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p .artifacts
+          gh api "repos/$ASSET_REPOSITORY/actions/runs/$BUILD_RUN_ID" > .artifacts/build-run.json
+          gh api "repos/$ASSET_REPOSITORY/actions/runs/$BUILD_RUN_ID/artifacts?per_page=100" > .artifacts/build-artifacts.json
+          python3 scripts/candidate_build.py .artifacts/build-run.json .artifacts/build-artifacts.json
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ steps.build.outputs.artifact_id }}
+          merge-multiple: true
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+          digest-mismatch: error
+          path: .artifacts/candidate
+      - name: Verify complete candidate without running toolchains
+        env:
+          BUILD_COMMIT: ${{ steps.build.outputs.commit }}
+        run: python3 scripts/candidate_files.py .artifacts/candidate
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: verified-candidate
+          path: .artifacts/candidate/
+          include-hidden-files: true
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      BUILD_COMMIT: ${{ needs.verify.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: verified-candidate
+          path: .artifacts/candidate
+          digest-mismatch: error
+      - name: Publish a new tool-pack prerelease at the exact build commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/candidate_publish.py .artifacts/candidate
