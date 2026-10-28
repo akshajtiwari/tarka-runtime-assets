@@ -2,10 +2,39 @@
 import json
 from pathlib import Path
 import shutil
+import time
+import urllib.error
 import urllib.request
 import zipfile
 
 from pack_tree import digest, zip_entry
+
+
+def fetch_source(item, destination):
+    if destination.exists():
+        if digest(destination) != item['sha256']:
+            raise ValueError('Native source archive checksum differs: ' + item['name'])
+        return
+    temporary = destination.with_suffix('.part')
+    urls = [item['url'], *item.get('mirrors', [])]
+    for attempt in range(2):
+        for url in urls:
+            print('Collecting native source: ' + item['name'] + ' from ' + url, flush=True)
+            try:
+                with urllib.request.urlopen(url, timeout=20) as source, temporary.open('wb') as target:
+                    shutil.copyfileobj(source, target, 1024 * 1024)
+                if digest(temporary) != item['sha256']:
+                    raise ValueError('Native source archive checksum differs: ' + item['name'])
+                temporary.rename(destination)
+                return
+            except (OSError, urllib.error.URLError) as error:
+                print('Native source fetch failed: ' + str(error), flush=True)
+                last_error = error
+            finally:
+                temporary.unlink(missing_ok=True)
+        if attempt == 0:
+            time.sleep(2)
+    raise RuntimeError('Could not download native source: ' + item['name']) from last_error
 
 
 def main():
@@ -13,13 +42,7 @@ def main():
     downloads = Path('.artifacts/native-loader/downloads')
     downloads.mkdir(parents=True, exist_ok=True)
     for item in inputs:
-        destination = downloads / item['file']
-        if not destination.exists():
-            temporary = destination.with_suffix('.part')
-            urllib.request.urlretrieve(item['url'], temporary)
-            temporary.rename(destination)
-        if digest(destination) != item['sha256']:
-            raise ValueError('Native source archive checksum differs: ' + item['name'])
+        fetch_source(item, downloads / item['file'])
     for license_id in ('GPL-3.0-only', 'LGPL-3.0-only'):
         destination = Path('native/licenses') / (license_id + '.txt')
         url = f'https://raw.githubusercontent.com/spdx/license-list-data/v3.27.0/text/{license_id}.txt'

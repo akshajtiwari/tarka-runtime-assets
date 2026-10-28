@@ -22,7 +22,7 @@ included in this repository.
   source artifacts/POMs, full original source trees/build scripts, and notices.
 - Separate PRoot/talloc original sources, patches, standalone build recipe,
   cross-compilation answers, GPLv3/LGPLv3 and original/NDK notices.
-- 33 focused unit tests, Python compilation and shell syntax checks pass.
+- 37 focused unit tests, Python compilation and shell syntax checks pass.
 - Catalog, native/Java source metadata, SHA256SUMS and explicit UPLOADS.txt generated.
 - Native installer JVM tests independently parsed/verified all eight real ZIPs and
   extracted/hashed both selected ABI generations; its log is with the application
@@ -55,7 +55,13 @@ smoke and mount-failure regression test pass. The corrected
 [Actions run](https://github.com/akshajtiwari/tarka-runtime-assets/actions/runs/40685892432),
 from source commit `028f12c8f655c08589896ac965fd77b5b8092cae`, passed both ABI
 build jobs and the complete payload/ELF/toolchain smoke step on the hosted runner.
-Corresponding source and notice collection is in progress.
+That run collected all Alpine and Java sources, then failed with HTTP 504 while
+fetching a pinned native source. Samba's talloc server also timed out locally.
+Native source fetching now has bounded timeouts/retries and a BLFS mirror whose
+talloc archive matches the existing SHA-256 exactly. Downloads are verified before
+atomic cache installation; failed or mismatched downloads leave no partial cache.
+A fresh download of both native sources passed, including the mirror fallback.
+The native source bundle/catalog change to record that mirror; runtime ZIPs do not.
 Complete Actions results and exact-hash Android acceptance remain required before
 runtime publication.
 No Maestro/UI screenshot applies to this standalone asset build repository.
